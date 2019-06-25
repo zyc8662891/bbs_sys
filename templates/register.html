@@ -1,0 +1,277 @@
+{% extends 'lr_base.html' %}
+{% block title %}
+    <a href="/my_login/" class="done">登录</a>
+    <a href="#">注册</a>
+{% endblock %}
+
+{% block content %}
+  <form>
+      {% csrf_token %}
+      {% for field in form %}
+          <div class="form-group">
+            <label for="{{ field.auto_id }}">{{ field.label }}</label>
+            {{ field }}
+            <span class="error pull-right"></span>
+          </div>
+      {% endfor %}
+      <div class="form-group">
+          <label for="avatar">头像
+                <img id="avatar_img" width="60" height="60" src="/static/img/user.png" title="个人头像" alt="">
+
+          </label>
+          <input type="file" id="avatar" name="avatar">
+      </div>
+      <div class="form-group" style="margin-top: 15px">
+          <input type="button" class="btn btn-success reg_btn center-block" value="提交">
+          <span class="error"></span>
+      </div>
+  </form>
+    <script src="/static/bs-3.3.7/js/jquery-3.3.1.js"></script>
+    <script>
+      $('#avatar').change(function () {
+          var file_obj = $(this)[0].files[0];
+          var reader = new FileReader();
+          reader.readAsDataURL(file_obj);
+          reader.onload = function () {
+              $("#avatar_img").attr('src', reader.result)
+          };
+      })
+      $('.reg_btn').click(function () {
+              var formdata = new FormData();
+              var request_data = $('form').serializeArray();
+              console.log(request_data);
+              $.each(request_data,function (index, data) {
+                  formdata.append(data.name,data.value)
+              });
+              formdata.append('csrfmiddlewaretoken', $('[name ="csrfmiddlewaretoken"]').val());
+              formdata.append('avatar', $('#avatar')[0].files[0]);
+              $.ajax({
+                  url:'/register/',
+                  type:'post',
+                  data:formdata,
+                  contentType:false,
+                  processData:false,
+                  success:function (data) {
+                      console.log(data);
+                      if (data.username) {
+                          location.href="/my_login/"
+                      }
+                      else {
+                          $('span.error').html('');
+                          $('.form-group').removeClass('has-error');
+                          $.each(data.msg,function (field, error_list) {
+                              if (field=='__all__'){
+                                  $('#id_re_password').next().html(error_list[0]).parent().addClass('has-error')
+
+                              }
+                              console.log(field,error_list);
+                              $('#id_' + field).next().html(error_list[0]).parent().addClass('has-error')
+
+                          })
+                      }
+                  }
+              })
+          });
+
+
+    </script>
+{% endblock %}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">#}
+{#    <link rel="stylesheet" href="/static/bs-3.3.7/css/bootstrap.css">#}
+{#    <style>#}
+{#        .register{#}
+{#                width:350px;#}
+{#				height:40px;#}
+{#				font-size: 15px;#}
+{#				background-color:#0077E6;#}
+{#				color:white;#}
+{#				cursor: pointer;#}
+{#				border-radius: 5px;#}
+{#        }#}
+{##}
+{##}
+{##}
+{#    </style>#}
+{#    <title>注册</title>#}
+{#</head>#}
+{#<body >#}
+{#background="/static/img/back_image.png"#}
+{##}
+{##}
+{#<div class="container col-md-offset-3 col-md-6">#}
+{#    <div class="panel-info" style="margin-top: 100px;">#}
+{#        <div class="panel-heading" style="border-top-left-radius: 62px; border-top-right-radius: 62px;">#}
+{#            <h3 class="text-center">注    册</h3>#}
+{#        </div>#}
+{#        <div class="panel-body " style="border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;">#}
+            {#            <form action="{% url 'add_book' %}" method="post" class="form-horizontal" novalidate>#}
+{#            <form action="" method="post" class="form form-horizontal">#}
+{#                  {% csrf_token %}#}
+{#                  <div class="form-group">#}
+{#                      <label for="username" class="control-label font-1 col-md-2 text-right">用户名: </label>#}
+{#                      <div class="col-md-9 input-div">#}
+{#                          <input type="text" id="username" class="   pull-left" name="username"  required>#}
+{#                          <span class="pull-left" style="color: red; font-size: 16px; margin-left: 10px"></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                      <label for="password" class="control-label font-1 col-md-2 text-right">密码: </label>#}
+{#                      <div class="col-md-9 input-div">#}
+{#                          <input  max="16" min="6" type="password" id="password" class="pull-left" name="password" required>#}
+{#                          <span class="pull-left" style="color: red; font-size:16px; margin-left: 10px"></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                      <label for="re_password" class="control-label font-1 col-md-2 text-right">确认密码: </label>#}
+{#                      <div class="col-md-9 input-div">#}
+{#                          <input max="16" min="6" type="password" id="re_password" class="pull-left" name="re_password" required>#}
+{#                          <span class="pull-left" style="color: red; font-size: 16px; margin-left: 10px"></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                      <label for="telephone" class="control-label font-1 col-md-2 text-right">手机号: </label>#}
+{#                      <div class="col-md-9 ">#}
+{#                          <input min="10000000000" max="99999999999" type="text" id="telephone" class="" name="telephone" required>#}
+{#                          <span class="pull-left" style="color: red; font-size: 16px; margin-left: 10px "></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                      <label for="email" class="control-label font-1 col-md-2 text-right">邮箱: </label>#}
+{#                      <div class="col-md-9 ">#}
+{#                          <input type="email" id="email" class="pull-left" name="email" required>#}
+{#                          <span class="pull-left" style="color: red; font-size: 16px; margin-left: 10px"></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                    <label for="avatar" class="text-center center-block">#}
+{#                        <img id="img_file" width="60" height="60" src="/static/img/user.png" alt="" title="个人头像">#}
+{#                    </label>#}
+{#                    <div class="hidden">#}
+{#                        <input type="file" id="avatar">#}
+{#                    </div>#}
+{#                </div>#}
+{#                  <div class="form-group">#}
+{#                      <input  style="margin-left: 150px " type="button" value="注册" class="register " required>#}
+{#                  </div>#}
+{##}
+{#            </form>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#<!-- Modal -->#}
+{#<div class="modal fade" id="register-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">#}
+{#    <div class="modal-dialog" role="document">#}
+{#        <div class="modal-content">#}
+{#            <div class="modal-header">#}
+{#                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span#}
+{#                        aria-hidden="true">&times;</span></button>#}
+{#                <h4 class="modal-title" id="myModalLabel"></h4>#}
+{#            </div>#}
+{##}
+{#            <div class="modal-footer">#}
+{#                <button id="sure" type="button" class="btn btn-primary" data-dismiss="modal">确认#}
+{#                </button>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#</body>#}
+{#<script src="/static/bs-3.3.7/js/jquery-3.3.1.js"></script>#}
+{#<script src="/static/bs-3.3.7/js/bootstrap.js"></script>#}
+{#<script>#}
+{#    $('#avatar').change(function () {#}
+{#        file = this.files[0];#}
+{#        console.log(file)#}
+{#        // 将file解析为blob:格式图片链接，可以直接被src识别#}
+{#        var reader = new window.FileReader();#}
+{#        reader.readAsDataURL(file);#}
+{#        reader.onloadend = function () {  // 等待流将文件读取完毕#}
+{#            $('#img_file').attr('src', reader.result)#}
+{#        };#}
+{#        if (event.target.files[0]) {#}
+{#            reader.readAsDataURL(event.target.files[0])#}
+{#        }#}
+{##}
+{#    });#}
+{#    //获取焦点事件:input-div的input都有该事件#}
+{#    $('.input-div input').focus(function () {#}
+{#        $(this).next().text("")#}
+{#    });#}
+{#    //失去焦点事件#}
+{#    $('#username').blur(function () {#}
+{#        var username = $(this).val();#}
+{#        var _this = this;#}
+{#        if (username) {#}
+{#            $.ajax({#}
+{#                url: '/check_username',#}
+{#                type:'get',#}
+{#                data: {#}
+{#                    username:username#}
+{#                },#}
+{#                success:function (data) {#}
+{#                    if(data.msg != 'OK') {#}
+{#                        $(_this).next().text(data.msg);#}
+{##}
+{#                    }#}
+{##}
+{#                }#}
+{#            })#}
+{#        }#}
+{#    })#}
+{#    $('#password').blur(function () {#}
+{#        //发送用户重名校验强求#}
+{#        var password = $(this).val();#}
+{#        var length = password.length;#}
+{#        if (length < 6){#}
+{#            $(this).next().text('•密码过短')#}
+{#        } else if (length > 16) {#}
+{#            $(this).next().text('•密码过长')#}
+{#        }#}
+{#    });#}
+{#    $('#re_password').on('input',function () {#}
+{#        password = $('#password').val();#}
+{#        re_password = $('#re_password').val();#}
+{#        if (password != re_password) {#}
+{#            $(this).next().removeClass(' glyphicon glyphicon-ok')#}
+{#            $(this).next().css('color','red');#}
+{#            $(this).next().text('•密码不相同')#}
+{#        } else  {#}
+{#            $(this).next().text('')#}
+{#            $(this).next().css('color','green');#}
+{#            $(this).next().addClass(' glyphicon glyphicon-ok')#}
+{##}
+{#        }#}
+{##}
+{#    })#}
+{#    //注册请求#}
+{#    $('.register').click(function () {#}
+{#        key_values = $('form').serializeArray()#}
+{#        form_data = new FormData();#}
+{#        $.each(key_values,function (index,obj) {#}
+{#            form_data.append(obj.name,obj.value);#}
+{#        })#}
+{#        avatar = $('#avatar')[0].files[0];#}
+{#        console.log(avatar)#}
+{#        if (avatar) {#}
+{#            form_data.append('avatar',avatar)#}
+{##}
+{#        }#}
+{#        $.ajax({#}
+{#            url: '/register/',#}
+{#            type:'post',#}
+{#            data: form_data,#}
+{#            contentType:false,#}
+{#            processData:false,#}
+{#            success:function (data) {#}
+{#                console.log(form_data)#}
+{#                $('#register-info').modal('show');#}
+{#                $('#myModalLabel').text(data.msg)#}
+{#            }#}
+{#        })#}
+{##}
+{#    })#}
+{#</script>#}
+{##}
+{#</html>#}

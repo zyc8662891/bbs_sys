@@ -1,0 +1,29 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">文章分类</div>
+    <div class="panel-body">
+        {% for category_tuple in category_set %}
+        <p>
+           <a href="">{{ category_tuple.0 }}({{ category_tuple.1 }})</a>
+        </p>
+        {% endfor %}
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">文章标签</div>
+    <div class="panel-body">
+        {% for tag in tag_list %}
+            <p>
+              <a href="">{{ tag.name }}({{ tag.c }})</a>
+            </p>
+        {% endfor %}
+    </div>
+</div>
+<div class="panel panel-danger">
+    <div class="panel-heading">文章档案</div>
+    {% for time in time_list  %}
+        <p>
+            <a href="">{{ time.month | date:'Y年m月' }}({{ time.c }})</a>
+        </p>
+    {% endfor %}
+
+</div>

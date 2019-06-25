@@ -1,0 +1,29 @@
+{% extends 'site/site.html' %}
+
+{% block content %}
+    {% for article in article_list %}
+        <h3>
+            <a href="/{{ blog.site }}/article/{{ article.id }}.html">{{ article.title }}</a>
+        </h3>
+        <div class="media clearfix" style="margin-bottom: 30px">
+            <div class="media-left media-middle">
+                <a hidden href="">
+                    <img class="media-object" src="/media/{{ article.blog.user.avatar }}" alt="">
+                </a>
+            </div>
+            <div class="media-body">
+                {{ article.desc }}
+            </div>
+            <div class="pull-right">
+                <span><b>{{ article.blog.user.username }}</b></span>
+                <span>{{ article.create_time }}</span>
+                <span>评论（0）</span>
+                {# 连表真心难 #}
+                {# <span>点赞（{{ article.upordown_set.all }}）</span>#}
+                <span>点赞（{{ article.up_count }}）</span>
+                <span>点踩（{{ article.down_count }}）</span>
+            </div>
+            <hr>
+        </div>
+    {% endfor %}
+{% endblock %}

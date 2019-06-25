@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改头像</title>
+    <style>
+        .tijiao {
+            width: 350px;
+            height: 40px;
+            font-size: 15px;
+            background-color: #0077E6;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="/static/bs-3.3.7/css/bootstrap.css">
+</head>
+<body>
+<div class="container col-md-offset-3 col-md-6">
+    <div class="panel-info" style="margin-top: 100px">
+        <div class="panel-heading" style="border-top-left-radius: 62px; border-top-right-radius: 62px;">
+            <h3 class="text-center">修改头像</h3>
+        </div>
+        <div class="panel-body">
+            <form action="" method="post" class=" form form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="avatar" class="text-center center-block">
+                        <img id="img_file" height="60" width="60" src="/media/{{ user.avatar }}" alt="">
+                    </label>
+                    <div class="hidden">
+                        <input type="file" id="avatar">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input style="margin-left: 150px " type="button" value="提交" class="tijiao " required>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="tijiao-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+            </div>
+
+            <div class="modal-footer">
+                <button id="sure" type="button" class="btn btn-primary" data-dismiss="modal">确认
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="/static/bs-3.3.7/js/jquery-3.3.1.js"></script>
+<script src="/static/bs-3.3.7/js/bootstrap.js"></script>
+<script>
+    $('#avatar').change(function () {
+        file = this.files[0];
+        console.log(file)
+        // 将file解析为blob:格式图片链接，可以直接被src识别
+        reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {  // 等待流将文件读取完毕
+            $('#img_file').attr('src', reader.result)
+        };
+    });
+    //递交请求
+    $('.tijiao').click(function () {
+        {#_username = $('#username').text()#}
+        var username = '{{ user.username }}'
+        console.log(username)
+        key_values = $('form').serializeArray()
+        form_data = new FormData();
+        $.each(key_values,function (index,obj) {
+            form_data.append(obj.name,obj.value);
+        })
+        avatar = $('#avatar')[0].files[0];
+        console.log(avatar);
+        if(avatar) {
+            form_data.append('avatar',avatar)
+        }
+        if(username) {
+            form_data.append('username',username)
+            console.log(username)
+
+        }
+        $.ajax({
+            url:'/update_avatar/',
+            type:'post',
+            data:form_data,
+            contentType:false,
+            processData:false,
+            success:function (data) {
+                $('#tijiao-info').modal('show')
+                $('#myModalLabel').text(data.msg)
+
+            }
+
+        })
+
+
+    })
+</script>
+</html>

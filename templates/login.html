@@ -1,0 +1,223 @@
+{% extends 'lr_base.html' %}
+{% block title %}
+    <a href="#">登录</a>
+        <a href="/register/" class="done">注册</a>
+{% endblock %}
+
+{% block content %}
+    <form>
+    {% csrf_token %}
+
+     <div class="form-group">
+         <label for="username">用户名</label>
+         <input type="text" id="username" class="form-control">
+     </div>
+     <div class="form-group">
+         <label for="password">密码</label>
+         <input type="password" id="password" class="form-control">
+     </div>
+     <div class="form-group">
+         <label for="img_code">验证码</label>
+         <div class="row">
+             <div class="col-md-3">
+                 <input type="text" class="form-control" id="img_code">
+             </div>
+             <div class="col-md-6 my_valid">
+             <img id="code" width="270" height="32px" src="/login_code/" alt="">
+             </div>
+
+         </div>
+
+     </div>
+     <div>
+         <div class="form-group" style="margin-top: 15px">
+             <input type="button" class="btn btn-success login_btn center-block" value="提交"><span class="error">
+
+         </span>
+         </div>
+     </div>
+
+    </form>
+    <script src="/static/bs-3.3.7/js/jquery-3.3.1.js"></script>
+    <script>
+       $('#code').click(function () {
+           $(this)[0].src += "?"
+
+       });
+       $(".login_btn").click(function () {
+           $.ajax({
+               url:"",
+               type:"post",
+               data: {
+                   username:$('#username').val(),
+                   password:$('#password').val(),
+                   img_code:$('#img_code').val(),
+                   csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+
+               },
+               success:function (data) {
+                   console.log(data)
+                   if (data.status == 1){
+                       location.href = '/'
+                   }else {
+                      $('.error').text(data.msg).css({'color': 'red', "margin-left": '10px'})
+                    setTimeout(function () {
+                        $('.error').text('')
+                    }, 1000)
+                   }
+
+
+               }
+           })
+       })
+    </script>
+{% endblock %}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">#}
+{#    <link rel="stylesheet" href="/static/bs-3.3.7/css/bootstrap.css">#}
+{#    <style>#}
+{#        .login{#}
+{#                width:350px;#}
+{#				height:40px;#}
+{#				font-size: 15px;#}
+{#				background-color:#0077E6;#}
+{#				color:white;#}
+{#				cursor: pointer;#}
+{#				border-radius: 5px;#}
+{##}
+{##}
+{##}
+{#        }#}
+{#        .register {#}
+{#                width:175px;#}
+{#				height:40px;#}
+{#				font-size: 15px;#}
+{#				background-color:#0077E6;#}
+{#				color:white;#}
+{#				cursor: pointer;#}
+{#				border-radius: 5px;#}
+{##}
+{#        }#}
+{##}
+{##}
+{##}
+{#    </style>#}
+{#    <title>注册</title>#}
+{#</head>#}
+{##}
+{#background="/static/img/back_image.png"#}
+{##}
+{##}
+{#<div class="container col-md-offset-3 col-md-6">#}
+{#    <div class="panel-info" style="margin-top: 100px;">#}
+{#        <div class="panel-heading" style="border-top-left-radius: 62px; border-top-right-radius: 62px;">#}
+{#            <h3 class="text-center">登    录</h3>#}
+{#        </div>#}
+{#        <div class="panel-body " style="border-bottom-left-radius: 7px;border-bottom-right-radius: 7px;">#}
+            {#            <form action="{% url 'add_book' %}" method="post" class="form-horizontal" novalidate>#}
+{#            <form action="" method="post" class="form form-horizontal">#}
+{#                  {% csrf_token %}#}
+{#                  <div class="form-group">#}
+{#                      <label for="username" class="control-label font-1 col-md-2 text-right">用户名: </label>#}
+{#                      <div class="col-md-9 input-div">#}
+{#                          <input type="text" id="username" class="pull-left" name="username"  required>#}
+{#                          <span class="pull-left" style="color: red; font-size: 16px; margin-left: 10px"></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                      <label for="password" class="control-label font-1 col-md-2 text-right">密码: </label>#}
+{#                      <div class="col-md-9 input-div">#}
+{#                          <input  max="16" min="6" type="password" id="password" class="pull-left" name="password" required>#}
+{#                          <span class="pull-left" style="color: red; font-size:16px; margin-left: 10px"></span>#}
+{#                      </div>#}
+{#                  </div>#}
+{#                  <div class="form-group">#}
+{#                    <label for="img_code" class="control-label font-1 col-md-2 text-right">验证码：</label>#}
+{#                    <div class="col-md-4 input-div">#}
+{#                        <input type="text" id="img_code" class="pull-left" name="img_code" required>#}
+{#                    </div>#}
+{#                    <div class="col-md-5">#}
+{#                        <img id="code" width="230" height="28" src="/login_code/" alt="">#}
+{#                    </div>#}
+{#                </div>#}
+{##}
+{##}
+{#                  <div class="form-group">#}
+{#                      <input  style="margin-left: 150px " type="button" value="登录" class="login " required>#}
+{##}
+{#                  </div>#}
+{##}
+{#            </form>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#<!-- Modal -->#}
+{#<div class="modal fade" id="login-info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">#}
+{#    <div class="modal-dialog" role="document">#}
+{#        <div class="modal-content">#}
+{#            <div class="modal-header">#}
+{#                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span#}
+{#                        aria-hidden="true">&times;</span></button>#}
+{#                <h4 class="modal-title" id="myModalLabel"></h4>#}
+{#            </div>#}
+{##}
+{#            <div class="modal-footer">#}
+{#                <button id="sure" type="button" class="btn btn-primary" data-dismiss="modal">确认#}
+{#                </button>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#</body>#}
+{#<script src="/static/bs-3.3.7/js/jquery-3.3.1.js"></script>#}
+{#<script src="/static/bs-3.3.7/js/bootstrap.js"></script>#}
+{#<script>#}
+{#    $(".login").click(function () {#}
+{#        token = $('[name = csrfmiddlewaretoken]').val();#}
+{#        $.ajax({#}
+{#            url:'/my_login/',#}
+{#            type:'post',#}
+{#            data:{#}
+{#                csrfmiddlewaretoken:token,#}
+{#                username:$('#username').val(),#}
+{#                password:$('#password').val(),#}
+{#                img_code:$('#img_code').val()#}
+{#            },#}
+{#            success:function (data) {#}
+{#                console.log(data)#}
+{#                $("#login-info").modal('show');#}
+{#                $('#myModalLabel').text(data.msg);#}
+{#                if (data.status == 1){#}
+{#                    location.href = '/'#}
+{#                }#}
+{##}
+{##}
+{##}
+{#            }#}
+{#        })#}
+{#    })#}
+{#    $('#code').click(function () {#}
+{#        url='/login_code/';#}
+{#        var xhr = new XMLHttpRequest();#}
+{#        xhr.open('GET',url,true);#}
+{#        xhr.responseType = 'blob';#}
+{#        xhr.onreadystatechange = function () {#}
+{#            if (xhr.readyState == 4) {#}
+{#                if (xhr.status == 200) {#}
+{#                    var blod = this.response;#}
+{#                    var src = URL.createObjectURL(blod);#}
+{#                    $('#code').attr('src',src)#}
+{##}
+{##}
+{#                }#}
+{#            }#}
+{##}
+{#        };#}
+{#        xhr.send();#}
+{#    })#}
+{##}
+{#</script>#}
+{##}
+{##}
+{#</html>#}

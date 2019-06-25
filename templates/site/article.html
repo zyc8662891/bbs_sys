@@ -1,0 +1,217 @@
+{% extends 'site/site.html' %}
+{% block link %}
+
+    <style>
+        .flag {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            color: #c0c0c0;
+        }
+
+        .up {
+            border: 5px solid darkcyan;
+            border-radius: 50%;
+            padding: 10px;
+            font-size: 20px;
+        }
+
+        .down {
+            border: 5px solid darkslateblue;
+            border-radius: 50%;
+            padding: 10px;
+            font-size: 20px;
+            margin-left: 10px;
+        }
+
+        .up:hover, .down:hover {
+            cursor: pointer;
+        }
+
+        .active {
+            color: red;
+        }
+
+        .blank {
+            margin-top: 200px;
+        }
+
+        textarea {
+            resize: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- -->
+    <!-- 文章标题 -->
+    <h2 class="text-center">{{ article.title }}</h2>
+    <hr>
+    <!-- 文章内容 -->
+    <div>
+        {{ article.article_detail.content|safe }}
+    </div>
+    <!-- 点赞点踩 -->
+    <div class="flag">
+        <!-- 未登录：空 | 登录未点赞点踩：None | 登录点踩了：{'is_up': True} | 登录点踩了：{'is_up': False} -->
+        <i hidden class="is_login" style="color: black; font-size: 30px">{{ is_up }}</i>
+        {% if is_up.is_up == True %}
+            <i class="up glyphicon glyphicon-thumbs-up active"></i>
+            <i class="down glyphicon glyphicon-thumbs-down"></i>
+        {% elif is_up.is_up == False %}
+            <i class="up glyphicon glyphicon-thumbs-up"></i>
+            <i class="down glyphicon glyphicon-thumbs-down active"></i>
+        {% else %}
+            <i class="up glyphicon glyphicon-thumbs-up"></i>
+            <i class="down glyphicon glyphicon-thumbs-down"></i>
+        {% endif %}
+    </div>
+    <!-- 评论 -->
+    {% if not request.user.is_authenticated %}
+        <h3>
+            <a href="">登录后查询评论区域</a>
+        </h3>
+    {% else %}
+        <h3>评论列表</h3>
+        <ul class="list-group">
+            {% for comment in comment_list %}
+                <li class="list-group-item">
+                    <span>
+                        <a href="">#{{ forloop.counter }}楼</a>
+                    </span>
+                    <span>
+                        {{ comment.create_time|date:'Y-m-d H:i:s' }}
+                    </span>
+                    <span>
+                        <a href="">{{ comment.user.username }}</a>
+                    </span>
+                    <span class="pull-right">
+                        <a username="{{ comment.user.username }}" parent_id="{{ comment.id }}" class="back_comment"
+                           href="javascript:void(0)">回复</a>
+                    </span>
+                    {% if comment.parent %}
+                        <p>
+                            @ {{ comment.parent.user.username }}
+                        </p>
+                    {% endif %}
+                    <p>
+                        {{ comment.content }}
+                    </p>
+                </li>
+            {% endfor %}
+
+        </ul>
+        <h3>发表评论</h3>
+        <p>
+            昵称：<input type="text" disabled value="{{ request.user.username }}">
+        </p>
+        <p>
+            评论内容：
+        </p>
+        <p>
+            <textarea class="comment_content" cols="60" rows="10"></textarea>
+        </p>
+        <p>
+            <input id="submit" type="button" class="btn btn-primary" value="评论">
+        </p>
+
+    {% endif %}
+    <!-- 底部留白 -->
+    <div class="blank"></div>
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        // 赞踩脚本
+        $('.up').click(function () {
+            // 未登录：空 => false
+            // 登录未点赞点踩：None | 登录点踩了：{'is_up': True} | 登录点踩了：{'is_up': False} => true
+
+            is_login = $('.is_login').text() ? true : false;
+
+            if (!is_login) {
+                alert("请登录！")
+            } else {
+                if (!$(this).hasClass('active')) {  // 保证点赞后不再重复点赞
+                    _this = this;
+                    // 不是点赞状态，发送点赞请求
+                    $.ajax({
+                        url: '/upordown/',
+                        type: 'get',
+                        data: {
+                            article_id: {{ article.id }},
+                            is_up: true,
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            data.status == 1 && $(_this).addClass('active').next().removeClass('active');
+                        }
+                    })
+                }
+            }
+        })
+
+        $('.down').click(function () {
+            is_login = $('.is_login').text() ? true : false;
+            if (!is_login) {
+                alert("请登录！")
+            } else {
+                if (!$(this).hasClass('active')) {  // 保证点踩后不再重复点踩
+                    _this = this;
+                    // 不是点踩状态，发送点踩请求
+                    $.ajax({
+                        url: '/upordown/',
+                        type: 'get',
+                        data: {
+                            article_id: {{ article.id }},
+                            is_up: false,
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            data.status == 1 && $(_this).addClass('active').prev().removeClass('active');
+                        }
+                    })
+                }
+            }
+
+        })
+
+    </script>
+
+    <script>
+        var parent_id = '';
+
+        // 回复的点击事件
+        $('.back_comment').click(function () {
+            var username = $(this).attr('username');
+            parent_id = $(this).attr('parent_id');
+            {#alert("回复评论")#}
+            $(".comment_content").text('@' + username + '\n')
+        });
+
+        // 评论脚本
+        $("#submit").click(function () {
+            var content = $('.comment_content').val();
+            var index = content.indexOf('\n');
+            content = content.slice(index + 1);
+
+            if (content) {
+                $.ajax({
+                    url: '/add_comment/',
+                    type: 'post',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        article_id: {{ article.id }},
+                        content: content,
+                        parent_id: parent_id,
+                    },
+                    success: function (data) {
+                        location.reload()
+                    }
+                })
+            }
+
+        })
+    </script>
+{% endblock %}

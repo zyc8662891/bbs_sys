@@ -1,0 +1,74 @@
+{% extends 'backends/backend_base.html' %}
+
+{% block content %}
+    <h3 class="text-center">编辑文章</h3>
+
+    <form action="" method="post" style="border: 2px solid #337ab7; padding: 20px">
+        {% csrf_token %}
+       <div class="form-group">
+              <div class=" form-group">
+                 <label for="title">标题</label>
+                 <div>
+                     <input type="text" name="title" value="{{ article_obj.title }}">
+                 </div>
+             </div>
+
+             <div class=" form-group">
+                 <label for="">内容(Kindeditor编辑器，不支持拖放/粘贴上传图片) </label>
+                 <div>
+                     <textarea name="content" id="article_content" cols="30" rows="10">{{ article_detail_obj.content }}</textarea>
+                 </div>
+             </div>
+             <div class="form-group">
+                 <label for="category_id" class="control-label">分组</label>
+                 <div>
+                     <select name="category_id" id="category_id" class="form-control">
+                         {% for category in category_list %}
+                             {% if article_detail_obj.category_id == category.id %}
+                                 <option selected value="{{ category.id }}">{{ category.name }}</option>
+                             {% else %}
+                                 <option value="{{ category.id }}">{{ category.name }}</option>
+                             {% endif %}
+                         {% endfor %}
+                     </select>
+                 </div>
+             </div>
+             <div class="form-group">
+
+             </div>
+
+             <input type="submit" class="btn btn-default">
+
+         </div>
+
+
+
+
+    </form>
+   <script src="/static/bs-3.3.7/js/jquery-3.3.1.js"></script>
+   <script charset="utf-8" src="/static/kindeditor/kindeditor-all.js"></script>
+
+    <script>
+            KindEditor.ready(function(K) {
+                    window.editor = K.create('#article_content',{
+                        width:"100%",
+                        height:"600",
+                        resizeType:0,
+                        uploadJson:"/upload/",
+                        extraFileUploadParams:{
+                            csrfmiddlewaretoken:$("[name='csrfmiddlewaretoken']").val()
+                        },
+                        filePostName:"upload_img"
+
+
+                    });
+            });
+    </script>
+
+
+{% endblock %}
+
+
+
+
+
